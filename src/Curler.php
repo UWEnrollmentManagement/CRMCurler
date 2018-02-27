@@ -40,7 +40,7 @@ class Curler
 
     }
 
-    protected function get($location, $query = [], $requestHeaders = [], &$responseHeaders = [], &$responseCode = null)
+    public function get($location, $query = [], $requestHeaders = [], &$responseHeaders = [], &$responseCode = null)
     {
         $thisClass = static::class;
 
@@ -64,7 +64,7 @@ class Curler
         return $result;
     }
 
-    protected function post($location, $body, $requestHeaders = [], &$responseHeaders = [], &$responseCode = null)
+    public function post($location, $body, $requestHeaders = [], &$responseHeaders = [], &$responseCode = null)
     {
         $thisClass = static::class;
 
