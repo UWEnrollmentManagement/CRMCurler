@@ -20,6 +20,8 @@ class Curler
         $this->defaultOptions = [
             CURLOPT_USERPWD => "{$this->apiusername}:{$this->apipassword}",
             CURLOPT_HTTPAUTH => CURLAUTH_NTLM,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
         ];
     }
 
@@ -46,7 +48,6 @@ class Curler
 
         $options = [
             CURLOPT_URL => rtrim($this->apibase, '/') . '/' . $location . '?' . http_build_query($query),
-            CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER => $requestHeaders,
             CURLOPT_HEADERFUNCTION => function($curl, $header) use (&$responseHeaders, $thisClass)
             {
@@ -72,8 +73,6 @@ class Curler
             CURLOPT_URL => rtrim($this->apibase, '/') . '/' . $location,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $body,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTPHEADER => $requestHeaders,
             CURLOPT_HEADERFUNCTION => function($curl, $header) use (&$responseHeaders, $thisClass)
             {
@@ -91,4 +90,28 @@ class Curler
         return $result;
     }
 
+    public function delete($location, $requestHeaders = [], &$responseHeaders = [], &$responseCode = null)
+    {
+        /** @var $this $thisClass */
+        $thisClass = static::class;
+
+        $options = [
+            CURLOPT_URL => rtrim($this->apibase, '/') . '/' . $location,
+            CURLOPT_CUSTOMREQUEST => 'DELETE',
+            CURLOPT_HTTPHEADER => $requestHeaders,
+            CURLOPT_HEADERFUNCTION => function($curl, $header) use (&$responseHeaders, $thisClass)
+            {
+                return $thisClass::processHeader($header, $responseHeaders);
+            },
+        ];
+
+        $ch = curl_init();
+        curl_setopt_array($ch, ($this->defaultOptions + $options));
+
+        $result = curl_exec($ch);
+        $responseCode = curl_getinfo($ch)['http_code'];
+        curl_close($ch);
+
+        return $result;
+    }
 }
