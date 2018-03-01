@@ -91,12 +91,17 @@ class Curler
         $options = $options + [
             CURLOPT_URL => rtrim($this->apibase, '/') . '/' . $location . '?' . http_build_query($query),
             CURLOPT_HTTPHEADER => $requestHeaders,
-            CURLOPT_POSTFIELDS => $body,
             CURLOPT_HEADERFUNCTION => function($curl, $header) use (&$responseHeaders, $thisClass)
             {
                 return $thisClass::processHeader($header, $responseHeaders);
             },
         ];
+
+        if ($body != '') {
+            $options = $options + [
+                CURLOPT_POSTFIELDS => $body,
+            ];
+        }
 
         $ch = curl_init();
         curl_setopt_array($ch, ($this->defaultOptions + $options));
@@ -104,6 +109,7 @@ class Curler
         $result = curl_exec($ch);
         $responseCode = curl_getinfo($ch)['http_code'];
         curl_close($ch);
+
 
         return $result;
 
